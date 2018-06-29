@@ -1,15 +1,19 @@
 package shawn.com.chatapp;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,34 +22,56 @@ import java.io.PrintWriter;
 
 public class PortEnter extends AppCompatActivity {
 
+    private void displayNotification(String noti) {
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "NotiChannel")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Test")
+                .setContentText("Testing notification")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(12, mBuilder.build());
+
+
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Notification Channel";
+            String description = "Send Notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("NotiChannel", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_port_enter);
 
-        EditText edit = findViewById(R.id.textField);
-        edit.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (i == KeyEvent.KEYCODE_ENTER)) {
-                    setSend(null);
-                    return true;
-                }
-
-                return false;
-            }
-        });
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        new SetupConnection().execute("First");
+        ServerInterface.firstTime = false;
+        runMessageChecker();
+
+        createNotificationChannel();
 
     }
 
     // Continuously check for messages from the server
     private void runMessageChecker() {
-        final TextView status = findViewById(R.id.statusText);
         final Handler handler = new Handler();
 
         handler.post(new Runnable() {
@@ -69,14 +95,14 @@ public class PortEnter extends AppCompatActivity {
     }
 
     // Set up the connection
-    private class SetupConnection extends AsyncTask<String, Integer, Long> {
+    private static class SetupConnection extends AsyncTask<String, Integer, Long> {
 
         protected Long doInBackground(String... params) {
 
-            if (params[0] == "First") {
+            if (params[0].equals("First")) {
                 try {
-                    EditText edit = findViewById(R.id.textField);
-                    ServerInterface.port = Integer.parseInt(edit.getText().toString());
+                   // EditText edit = findViewById(R.id.textField);
+                    ServerInterface.port = 60000;
                     ServerInterface.sock = new Socket(ServerInterface.serverIP, ServerInterface.port);
                     ServerInterface.send = new PrintWriter(ServerInterface.sock.getOutputStream(), true);
                     ServerInterface.fromServer = new BufferedReader(new InputStreamReader(ServerInterface.sock.getInputStream()));
@@ -86,18 +112,14 @@ public class PortEnter extends AppCompatActivity {
                     System.out.println("IOEX");
                     return new Long(5);
                 }
-            } else {
-                if (ServerInterface.send != null) {
-                    ServerInterface.send.println(params[0]);
-                }
             }
 
-            return new Long(5);
+            return Long.valueOf(5);
         }
     }
 
     // Send message
-    private class MessageSender extends AsyncTask<String, Integer, Long> {
+    private static class MessageSender extends AsyncTask<String, Integer, Long> {
         protected Long doInBackground(String... params) {
             ServerInterface.send.println(params[0]);
             return new Long(5);
@@ -105,7 +127,7 @@ public class PortEnter extends AppCompatActivity {
     }
 
     // Receive message
-    private class MessageReceiver extends AsyncTask<String, Integer, Long> {
+    private static class MessageReceiver extends AsyncTask<String, Integer, Long> {
         protected Long doInBackground(String... params) {
             try {
                 if (ServerInterface.fromServer.ready()) {
@@ -137,24 +159,5 @@ public class PortEnter extends AppCompatActivity {
         }
 
         new MessageSender().execute(code + "/" + userName + "/" + passWord);
-    }
-
-    // Set the port number and set up the connection
-    public void setSend(View view) {
-
-        EditText edit = findViewById(R.id.textField);
-
-        if (ServerInterface.firstTime) {
-            new SetupConnection().execute("First");
-            ServerInterface.firstTime = false;
-        } else {
-
-            String message = edit.getText().toString();
-            new MessageSender().execute(message);
-        }
-
-        edit.setText("");
-        runMessageChecker();
-
     }
 }

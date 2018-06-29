@@ -20,4 +20,9 @@ public class ChatList extends AppCompatActivity implements ConversationsFragment
     public void itemClicked(long id) {
         // Do stuff
     }
+
+    @Override
+    public void onBackPressed() {
+
+    }
 }
