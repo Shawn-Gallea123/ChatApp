@@ -1,5 +1,6 @@
 package shawn.com.chatapp;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -17,8 +18,10 @@ public class ChatList extends AppCompatActivity implements ConversationsFragment
     }
 
     @Override
-    public void itemClicked(long id) {
-        // Do stuff
+    public void itemClicked(String otherUser) {
+        Intent intent = new Intent(this, Chat.class);
+        intent.putExtra("OtherUser", otherUser);
+        startActivity(intent);
     }
 
     @Override

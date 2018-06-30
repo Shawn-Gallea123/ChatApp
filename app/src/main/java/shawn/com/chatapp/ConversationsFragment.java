@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,10 @@ import android.widget.ListView;
  */
 public class ConversationsFragment extends ListFragment {
 
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     interface Listener {
-        void itemClicked(long id);
+        void itemClicked(String s);
     }
 
     private Listener listener;
@@ -30,6 +33,7 @@ public class ConversationsFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
 
         String[] friends = ServerInterface.result.split("/");
         String[] convos = new String[friends.length - 1];
@@ -55,7 +59,7 @@ public class ConversationsFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View itemView, int position, long id) {
         if (listener != null) {
-            listener.itemClicked(id);
+            listener.itemClicked(listView.getItemAtPosition(position).toString());
         }
     }
 

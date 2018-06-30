@@ -7,12 +7,11 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/chat_app_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="Chat App"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".PortEnter">
+        <activity android:name=".PortEnter">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,8 +20,8 @@
         </activity>
         <activity
             android:name=".ChatList"
-            android:label="Conversations">
-        </activity>
+            android:label="Conversations"/>
+        <activity android:name=".Chat"/>
     </application>
 
 </manifest>

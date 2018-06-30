@@ -3,6 +3,7 @@ package shawn.com.chatapp;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -14,11 +15,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.io.PrintWriter;
+import java.net.UnknownHostException;
 
 public class PortEnter extends AppCompatActivity {
 
@@ -62,11 +67,7 @@ public class PortEnter extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        new SetupConnection().execute("First");
-        ServerInterface.firstTime = false;
-        runMessageChecker();
-
-        createNotificationChannel();
+       // createNotificationChannel();
 
     }
 
@@ -99,20 +100,21 @@ public class PortEnter extends AppCompatActivity {
 
         protected Long doInBackground(String... params) {
 
-            if (params[0].equals("First")) {
                 try {
                    // EditText edit = findViewById(R.id.textField);
-                    ServerInterface.port = 60000;
-                    ServerInterface.sock = new Socket(ServerInterface.serverIP, ServerInterface.port);
+                    ServerInterface.sock = new Socket(InetAddress.getByName(ServerInterface.serverIP), ServerInterface.port);
                     ServerInterface.send = new PrintWriter(ServerInterface.sock.getOutputStream(), true);
                     ServerInterface.fromServer = new BufferedReader(new InputStreamReader(ServerInterface.sock.getInputStream()));
 
-
                 } catch (IOException e) {
-                    System.out.println("IOEX");
+                    System.out.println("ZEBRA: IOEX");
+                    ServerInterface.send = null;
+                    ServerInterface.sock = null;
+                    ServerInterface.fromServer = null;
+                    ServerInterface.failedConnection = true;
                     return new Long(5);
                 }
-            }
+
 
             return Long.valueOf(5);
         }
@@ -148,6 +150,40 @@ public class PortEnter extends AppCompatActivity {
         String userName = userEdit.getText().toString();
         String passWord = passEdit.getText().toString();
         String code = null;
+
+        if (ServerInterface.firstTime) {
+            new SetupConnection().execute("");
+
+            while (ServerInterface.send == null) {
+                // Loop until set up
+
+                System.out.println("ZEBRA: LOOP");
+
+                if (ServerInterface.failedConnection) {
+                    // Notify user of no sign in
+                    Context context = getApplicationContext();
+                    CharSequence text = "No connection";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    ServerInterface.failedConnection = false;
+
+                    return;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // Nothing
+                }
+
+
+            }
+
+        }
+
+        ServerInterface.firstTime = false;
+        runMessageChecker();
 
         switch(view.getId()) {
             case R.id.signUp:
