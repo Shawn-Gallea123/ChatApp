@@ -12,42 +12,39 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+// ListFragment for displaying active conversations
 public class ConversationsFragment extends ListFragment {
 
-    private SwipeRefreshLayout swipeRefreshLayout;
-
+    // Interface for containing activity
     interface Listener {
         void itemClicked(String s);
     }
 
+    // Listener memb-var
     private Listener listener;
 
     public ConversationsFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        // Remove "CL" token from tokens, place in convos
+        String[] tokens = ServerInterface.result.split("/");
+        String[] convos = new String[tokens.length - 1];
 
-        String[] friends = ServerInterface.result.split("/");
-        String[] convos = new String[friends.length - 1];
-
-        for (int i = 1; i < friends.length; ++i) {
-            convos[i-1] = friends[i];
+        for (int i = 1; i < tokens.length; ++i) {
+            convos[i-1] = tokens[i];
         }
 
+        // Create and set ArrayAdapter for ListFragment
         ArrayAdapter<String> adapter = new ArrayAdapter<>(inflater.getContext(),
                 android.R.layout.simple_list_item_1, convos);
         setListAdapter(adapter);
 
         return super.onCreateView(inflater, container, savedInstanceState);
-
     }
 
     @Override
@@ -56,7 +53,7 @@ public class ConversationsFragment extends ListFragment {
         this.listener = (Listener) context;
     }
 
-    @Override
+    @Override // Send user name chosen to next activity
     public void onListItemClick(ListView listView, View itemView, int position, long id) {
         if (listener != null) {
             listener.itemClicked(listView.getItemAtPosition(position).toString());

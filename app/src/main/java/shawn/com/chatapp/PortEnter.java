@@ -64,6 +64,7 @@ public class PortEnter extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_port_enter);
 
+        // Set toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -75,6 +76,7 @@ public class PortEnter extends AppCompatActivity {
     private void runMessageChecker() {
         final Handler handler = new Handler();
 
+        // Loop
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -151,13 +153,13 @@ public class PortEnter extends AppCompatActivity {
         String passWord = passEdit.getText().toString();
         String code = null;
 
+        // If first time ran, setup connection
         if (ServerInterface.firstTime) {
+
             new SetupConnection().execute("");
 
             while (ServerInterface.send == null) {
                 // Loop until set up
-
-                System.out.println("ZEBRA: LOOP");
 
                 if (ServerInterface.failedConnection) {
                     // Notify user of no sign in
@@ -176,15 +178,15 @@ public class PortEnter extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     // Nothing
                 }
-
-
             }
-
         }
 
         ServerInterface.firstTime = false;
+
+        // Begin listening for messages
         runMessageChecker();
 
+        // Prepare message
         switch(view.getId()) {
             case R.id.signUp:
                 code = "SU";
@@ -194,6 +196,7 @@ public class PortEnter extends AppCompatActivity {
                 break;
         }
 
+        // Send message
         new MessageSender().execute(code + "/" + userName + "/" + passWord);
     }
 }
