@@ -21,8 +21,10 @@ public class ChatList extends AppCompatActivity implements ConversationsFragment
     @Override
     public void itemClicked(String otherUser) {
         // Start Chat activity, passing user name
+        String userName = getIntent().getStringExtra("UserName");
         Intent intent = new Intent(this, Chat.class);
         intent.putExtra("OtherUser", otherUser);
+        intent.putExtra("UserName", userName);
         startActivity(intent);
     }
 

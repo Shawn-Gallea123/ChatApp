@@ -12,4 +12,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <EditText
+        android:id="@+id/messageEntry"
+        android:layout_width="319dp"
+        android:layout_height="57dp"
+        android:ems="10"
+        android:hint="@string/enter_message"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/sendButton"
+        android:layout_width="64dp"
+        android:layout_height="57dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_send"
+        android:onClick="sendMessage"/>
+
 </android.support.constraint.ConstraintLayout>

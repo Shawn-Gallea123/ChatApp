@@ -1,5 +1,7 @@
 package shawn.com.chatapp;
 
+import android.os.AsyncTask;
+
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -14,4 +16,14 @@ public class ServerInterface {
     public static PrintWriter send = null; // Output to server
     public static String result = ""; // Temporary results from received messages
     public static boolean failedConnection = false; // True if connection failed
+
+    // Send message
+    public static class MessageSender extends AsyncTask<String, Integer, Long> {
+        protected Long doInBackground(String... params) {
+            ServerInterface.send.println(params[0]);
+            return new Long(5);
+        }
+    }
+
+
 }

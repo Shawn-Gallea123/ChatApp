@@ -94,6 +94,9 @@ public class PortEnter extends AppCompatActivity {
     // Go to ChatList activity
     private void goToConversations() {
         Intent intent = new Intent(this, ChatList.class);
+        EditText userEdit = findViewById(R.id.userEdit);
+        String userName = userEdit.getText().toString();
+        intent.putExtra("UserName", userName);
         startActivity(intent);
     }
 
@@ -119,14 +122,6 @@ public class PortEnter extends AppCompatActivity {
 
 
             return Long.valueOf(5);
-        }
-    }
-
-    // Send message
-    private static class MessageSender extends AsyncTask<String, Integer, Long> {
-        protected Long doInBackground(String... params) {
-            ServerInterface.send.println(params[0]);
-            return new Long(5);
         }
     }
 
@@ -197,6 +192,6 @@ public class PortEnter extends AppCompatActivity {
         }
 
         // Send message
-        new MessageSender().execute(code + "/" + userName + "/" + passWord);
+        new ServerInterface.MessageSender().execute(code + "/" + userName + "/" + passWord);
     }
 }
